@@ -1,0 +1,26 @@
+.payment-cc-box{
+    position: relative;
+    margin-bottom: 10px;
+    border: 1px solid #d0d0d0;
+    border-radius: 5px;
+}
+
+.more-button {
+    position: absolute;
+    font-size: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 0;
+    padding: 10px 17px;
+    background-color: #f5f5f5;
+}
+
+.less-button {
+    position: absolute;
+    font-size: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0;
+    padding: 10px 17px;
+    background-color: #f5f5f5;
+}

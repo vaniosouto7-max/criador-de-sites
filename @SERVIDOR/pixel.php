@@ -1,0 +1,93 @@
+<?php
+session_start();
+require_once('../api/db.php');
+if(!isset($_SESSION['login'], $_SESSION['senha'], $_SESSION['tempo']) || $_SESSION['tempo'] < time()){
+    header('Location: index.php?access=fail&id='.time());
+    exit;
+}
+$sql_conf = mysqli_query($conn, "SELECT * FROM config");
+$lojinha = "Marketplace";
+if($sql_conf && $rowx = mysqli_fetch_array($sql_conf)){ $lojinha = $rowx["nome"]; }
+?>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Pixel Facebook</title>
+  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900|Roboto+Slab:400,700" />
+  <link href="./assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="./assets/css/nucleo-svg.css" rel="stylesheet" />
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <link href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp" rel="stylesheet">
+    <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link id="pagestyle" href="./assets/css/black-theme.css?v=<?php echo time(); ?>" rel="stylesheet" />
+  <link href="./assets/css/fix-labels.css" rel="stylesheet" />
+  <style>
+    .welcome-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      animation: fadeIn 0.5s ease;
+    }
+    .welcome-bar h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+    .welcome-bar p {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+  </style>
+
+    <link rel="shortcut icon" href="../arquivos/favicon.png?v=<?php echo time(); ?>">
+    <link rel="icon" type="image/png" href="../arquivos/favicon.png?v=<?php echo time(); ?>">
+</head>
+<body class="g-sidenav-show bg-gray-200">
+  <?php include 'sidebar.php'; ?>
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
+    <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl" id="navbarBlur" data-scroll="true">
+      <div class="container-fluid py-1 px-3"><nav aria-label="breadcrumb"><ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5"><li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">Página</a></li><li class="breadcrumb-item text-sm text-dark active" aria-current="page">Pixel Facebook</li></ol><h6 class="font-weight-bolder mb-0">Configuração do Pixel</h6></nav><ul class="navbar-nav justify-content-end"><li class="nav-item d-flex align-items-center"><a href="sair.php" class="nav-link text-body font-weight-bold px-0"><i class="fa fa-user me-sm-1"></i><span class="d-sm-inline d-none">Sair</span></a></li></ul></div>
+    </nav>
+    <div class="container-fluid py-4"><br><br><br>
+      <div class="row">
+        <div class="col-lg-7 col-md-10">
+          <div class="card card-body mx-3 mx-md-4 mt-n6">
+            <h5 class="mb-3">Pixel do Facebook / Meta</h5>
+            <p class="text-sm text-secondary">Cadastre aqui o ID do Pixel (ou múltiplos Pixels separados por vírgula) para mapear visitantes, etapas do funil e compra confirmada quando o Pix for aprovado.</p>
+            <div class="input-group input-group-outline my-3 is-filled"><label class="form-label">ID do(s) Pixel(s)</label><input id="pixel_id" type="text" class="form-control" placeholder="Ex: 1234567, 9876543"></div>
+            <div class="form-check form-switch my-3"><input class="form-check-input" type="checkbox" id="pixel_ativo"><label class="form-check-label" for="pixel_ativo">Ativar Pixel nas páginas públicas</label></div>
+            <div class="form-check form-switch my-3"><input class="form-check-input" type="checkbox" id="purchase_event"><label class="form-check-label" for="purchase_event">Disparar evento Purchase quando o pagamento for confirmado</label></div>
+            <button class="btn bg-gradient-primary" onclick="salvarPixel()">Salvar Pixel</button>
+            <button class="btn bg-gradient-secondary" onclick="carregarPixel()">Recarregar</button>
+            <hr>
+            <h6>Eventos configurados</h6>
+            <p class="text-sm text-secondary mb-0"><b>PageView</b> em páginas públicas, <b>ViewContent</b> no produto, <b>InitiateCheckout</b> no carrinho, <b>AddPaymentInfo</b> no Pix gerado e <b>Purchase</b> quando a API retorna pagamento pago.</p>
+            <div id="retorno" class="alert mt-3" style="display:none;"></div>
+          </div>
+        </div>
+      </div>
+      <footer class="footer py-4"><div class="container-fluid"><div class="row align-items-center justify-content-lg-between"><div class="col-lg-6 mb-lg-0 mb-4"><div class="copyright text-center text-sm text-muted text-lg-start">© <script>document.write(new Date().getFullYear())</script> Loja</div></div></div></div></footer>
+    </div>
+  </main>
+  <script src="./assets/js/core/popper.min.js"></script>
+  <script src="./assets/js/core/bootstrap.min.js"></script>
+  <script src="./assets/js/plugins/perfect-scrollbar.min.js"></script>
+  <script src="./assets/js/plugins/smooth-scrollbar.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="./assets/js/material-dashboard.min.js?v=3.0.4"></script>
+  <script>
+    function aviso(tipo, texto){ const el = $('#retorno'); el.removeClass('alert-success alert-danger').addClass(tipo === 'ok' ? 'alert-success text-white' : 'alert-danger text-white').text(texto).show(); }
+    function carregarPixel(){ $.post('api_adm/', {api:'pixel_config'}, function(resp){ try { const data = typeof resp === 'string' ? JSON.parse(resp) : resp; $('#pixel_id').val(data.pixel_id || ''); $('#pixel_ativo').prop('checked', String(data.ativo) === '1'); $('#purchase_event').prop('checked', String(data.purchase_event) === '1'); } catch(e){ aviso('erro', 'Erro ao carregar configuração do Pixel.'); } }); }
+    function salvarPixel(){ const pixel = $('#pixel_id').val().trim(); if(pixel && !/^[\d,\s]+$/.test(pixel)){ aviso('erro', 'Informe apenas números separados por vírgula no ID do Pixel.'); return; } $.post('api_adm/', {api:'salvarPixelFacebook', pixel_id:pixel, ativo: $('#pixel_ativo').is(':checked') ? 1 : 0, purchase_event: $('#purchase_event').is(':checked') ? 1 : 0}, function(resp){ try { const data = typeof resp === 'string' ? JSON.parse(resp) : resp; if(data.ok){ aviso('ok', 'Pixel salvo com sucesso.'); carregarPixel(); } else { aviso('erro', 'Não foi possível salvar o Pixel: ' + (data.error || 'erro no banco de dados.')); } } catch(e){ aviso('erro', 'Resposta inválida ao salvar o Pixel.'); } }); }
+    carregarPixel();
+  </script>
+</body>
+</html>

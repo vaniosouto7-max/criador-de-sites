@@ -1,0 +1,8 @@
+.env
+.env.*
+!.env.example
+*.log
+*.sql.bak
+uploads/
+tmp/
+.DS_Store
